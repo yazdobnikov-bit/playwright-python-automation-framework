@@ -3,3 +3,10 @@ name = "playwright-python-automation-framework"
 version = "0.1.0"
 requires-python = ">=3.13,<3.14"
 dependencies = []
+
+[dependency-groups]
+dev = [
+    "playwright>=1.62.0",
+    "pytest>=9.1.1",
+    "pytest-playwright>=0.8.0",
+]
