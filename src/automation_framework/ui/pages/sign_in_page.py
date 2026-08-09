@@ -5,7 +5,7 @@ from automation_framework.ui.pages.base_page import BasePage
 
 class SignInPage(BasePage):
     def __init__(self, page: Page):
-        super().__init__(page, 'https://practicesoftwaretesting.com/auth/login')
+        super().__init__(page, '/auth/login')
         self.email_input = self.page.get_by_placeholder('Your email')
         self.password_input = self.page.get_by_placeholder('Your password')
         self.sign_in_button = self.page.get_by_role('button', name='Login')
