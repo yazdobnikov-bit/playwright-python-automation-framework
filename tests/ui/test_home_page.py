@@ -24,3 +24,15 @@ def test_home_page_has_products(pages: Pages):
     expect(bolt_product.name).to_have_text("Bolt Cutters")
     expect(bolt_product.price).to_have_text(re.compile(r"\$\d+\.\d{2}"))
     expect(bolt_product.compare_btn).to_be_visible()
+
+
+def test_search_products(pages: Pages):
+    pages.home.open()
+    query = "Hammer"
+    pages.home.filters.search.search(query)
+    product_names = pages.home.products.get_product_names()
+
+    expect(product_names).not_to_have_count(0)
+
+    for index in range(product_names.count()):
+        expect(product_names.nth(index)).to_have_text(re.compile(query, re.IGNORECASE))
