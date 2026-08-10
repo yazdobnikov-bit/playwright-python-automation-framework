@@ -29,10 +29,31 @@ def test_home_page_has_products(pages: Pages):
 def test_search_products(pages: Pages):
     pages.home.open()
     query = "Hammer"
+
     pages.home.filters.search.search(query)
+
+    expect(pages.home.products.result_count).to_contain_text(query)
+
+    product_names = pages.home.products.get_product_names()
+    expect(product_names).not_to_have_count(0)
+
+    for index in range(product_names.count()):
+        expect(product_names.nth(index)).to_have_text(re.compile(query, re.IGNORECASE))
+
+
+def test_filter_products(pages: Pages):
+    pages.home.open()
+    category = "Hammer"
+
+    pages.home.filters.categories.select(category)
+
+    pages.home.products.filter_completed.wait_for(state="attached")
+
     product_names = pages.home.products.get_product_names()
 
     expect(product_names).not_to_have_count(0)
 
     for index in range(product_names.count()):
-        expect(product_names.nth(index)).to_have_text(re.compile(query, re.IGNORECASE))
+        expect(product_names.nth(index)).to_have_text(
+            re.compile(category, re.IGNORECASE)
+        )

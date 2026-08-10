@@ -1,4 +1,4 @@
-from playwright.sync_api import Page, Locator
+from playwright.sync_api import Locator, Page
 
 from automation_framework.ui.components.product_card import ProductCard
 
@@ -7,8 +7,9 @@ class ProductGrid:
     def __init__(self, page: Page):
         self.page = page
         self.products = page.locator('[data-test^="product-"]')
-        self.result_count = self.page.get_by_test_id("search-result-count")
+        self.result_count = self.page.locator('[data-test="search-result-count"]')
         self.product_names = self.products.locator('[data-test="product-name"]')
+        self.filter_completed = self.page.locator('[data-test="filter_completed"]')
 
     def get_first_product(self) -> ProductCard:
         return ProductCard(self.products.first)
