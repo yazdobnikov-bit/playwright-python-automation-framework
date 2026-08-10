@@ -7,7 +7,7 @@ from automation_framework.ui.pages_container import Pages
 
 def test_home_page(pages: Pages, base_url: str):
     pages.home.open()
-    expected_url = base_url.rstrip('/') + '/'
+    expected_url = base_url.rstrip("/") + "/"
     expect(pages.home.page).to_have_title(re.compile("Practice Software Testing"))
     expect(pages.home.page).to_have_url(expected_url)
 

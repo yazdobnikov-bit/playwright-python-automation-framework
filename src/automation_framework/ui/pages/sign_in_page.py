@@ -5,11 +5,11 @@ from automation_framework.ui.pages.base_page import BasePage
 
 class SignInPage(BasePage):
     def __init__(self, page: Page):
-        super().__init__(page, '/auth/login')
-        self.email_input = self.page.get_by_placeholder('Your email')
-        self.password_input = self.page.get_by_placeholder('Your password')
-        self.sign_in_button = self.page.get_by_role('button', name='Login')
-        self.register_link = self.page.get_by_label('Register your account')
+        super().__init__(page, "/auth/login")
+        self.email_input = self.page.get_by_placeholder("Your email")
+        self.password_input = self.page.get_by_placeholder("Your password")
+        self.sign_in_button = self.page.get_by_role("button", name="Login")
+        self.register_link = self.page.get_by_label("Register your account")
         self.email_error = self.page.locator('[data-test="email-error"]')
         self.password_error = self.page.locator('[data-test="password-error"]')
         self.sign_in_error = self.page.locator('[data-test="login-error"]')

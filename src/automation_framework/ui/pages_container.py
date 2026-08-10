@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 
-from automation_framework.ui.pages.sign_in_page import SignInPage
 from automation_framework.ui.pages.home_page import HomePage
+from automation_framework.ui.pages.sign_in_page import SignInPage
 
 
 class Pages:
