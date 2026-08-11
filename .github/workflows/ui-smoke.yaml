@@ -49,6 +49,10 @@ jobs:
         working-directory: practice-software-testing
         run: docker compose up -d
 
+      - name: Initialize test data
+        working-directory: practice-software-testing
+        run: bash init-data.sh
+
       - name: Wait for test application
         run: |
           ATTEMPTS=20
