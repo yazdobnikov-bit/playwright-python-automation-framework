@@ -1,0 +1,43 @@
+name: UI Smoke Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Verify Python version
+        run: python --version
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Verify uv version
+        run: uv --version
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Install Playwright Chromium
+        run: uv run playwright install --with-deps chromium
+
+      - name: Run Ruff lint
+        run: uv run ruff check
+
+      - name: Check Ruff formatting
+        run: uv run ruff format --check
+
+      - name: Run smoke tests
+        run: uv run pytest -m smoke -v
