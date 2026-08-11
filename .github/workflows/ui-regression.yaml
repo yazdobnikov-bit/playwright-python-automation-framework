@@ -66,13 +66,17 @@ jobs:
           for i in $(seq 1 $ATTEMPTS); do
             echo "Checking application readiness (attempt $i/$ATTEMPTS)..."
 
-            if curl --fail --silent "$FRONTEND_URL" > /dev/null \
-              && curl --fail --silent "$PRODUCTS_URL" > /dev/null; then
+            FRONTEND_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$FRONTEND_URL")
+            PRODUCTS_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$PRODUCTS_URL")
+
+            echo "Frontend status: $FRONTEND_STATUS"
+            echo "Products API status: $PRODUCTS_STATUS"
+
+            if [ "$FRONTEND_STATUS" = "200" ] && [ "$PRODUCTS_STATUS" = "200" ]; then
               echo "Application is ready."
               exit 0
             fi
 
-            echo "Application is not ready yet. Waiting ${TIMEOUT}s..."
             sleep "$TIMEOUT"
           done
 
