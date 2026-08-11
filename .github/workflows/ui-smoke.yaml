@@ -2,13 +2,14 @@ name: UI Smoke Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,7 +23,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: "3.13"
 
       - name: Verify Python version
         run: python --version
@@ -53,6 +54,12 @@ jobs:
         working-directory: practice-software-testing
         run: docker compose wait composer
 
+      - name: Fix Laravel permissions
+        working-directory: practice-software-testing
+        run: |
+          docker compose exec -T --user root laravel-api sh -c \
+            'chown -R www-data:www-data storage bootstrap/cache && chmod -R ug+rwX storage bootstrap/cache'
+
       - name: Initialize test data
         working-directory: practice-software-testing
         run: bash init-data.sh
@@ -67,8 +74,19 @@ jobs:
           for i in $(seq 1 $ATTEMPTS); do
             echo "Checking application readiness (attempt $i/$ATTEMPTS)..."
 
-            if curl --fail --silent "$FRONTEND_URL" > /dev/null \
-              && curl --fail --silent "$PRODUCTS_URL" > /dev/null; then
+            FRONTEND_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+              --connect-timeout 2 --max-time 5 "$FRONTEND_URL" || true)
+
+            PRODUCTS_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+              --connect-timeout 2 --max-time 5 "$PRODUCTS_URL" || true)
+
+            FRONTEND_STATUS=${FRONTEND_STATUS:-000}
+            PRODUCTS_STATUS=${PRODUCTS_STATUS:-000}
+
+            echo "Frontend status: $FRONTEND_STATUS"
+            echo "Products API status: $PRODUCTS_STATUS"
+
+            if [ "$FRONTEND_STATUS" = "200" ] && [ "$PRODUCTS_STATUS" = "200" ]; then
               echo "Application is ready."
               exit 0
             fi
@@ -90,6 +108,43 @@ jobs:
           name: playwright-artifacts
           path: test-results/
           if-no-files-found: ignore
+
+      - name: Show backend diagnostics
+        if: failure()
+        working-directory: practice-software-testing
+        run: |
+          echo "=== Product count ==="
+          docker compose exec -T laravel-api \
+            php artisan tinker --execute="dump(App\Models\Product::count());" || true
+
+          echo "=== Laravel log files ==="
+          docker compose exec -T laravel-api sh -c \
+            'ls -lah storage/logs || true'
+
+          echo "=== Laravel application log ==="
+          docker compose exec -T laravel-api sh -c \
+            'tail -n 300 storage/logs/laravel.log 2>/dev/null || true'
+
+          echo "=== /products response ==="
+          curl -i http://localhost:8091/products || true
+
+          echo "=== Laravel container logs ==="
+          docker compose logs --tail=200 laravel-api
+
+      - name: Check Laravel permissions
+        if: failure()
+        working-directory: practice-software-testing
+        run: |
+          echo "=== PHP-FPM user ==="
+          docker compose exec -T laravel-api sh -c 'id www-data || true'
+
+          echo "=== storage ownership ==="
+          docker compose exec -T laravel-api sh -c \
+            'ls -ldn storage storage/logs storage/framework storage/framework/cache storage/framework/sessions storage/framework/views'
+
+          echo "=== storage/logs ==="
+          docker compose exec -T laravel-api sh -c \
+            'ls -lah storage/logs'
 
       - name: Show test application logs
         if: failure()
