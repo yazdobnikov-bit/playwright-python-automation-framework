@@ -89,7 +89,7 @@ jobs:
 
           echo "Error: Application failed to become ready."
           exit 1
-          
+
       - name: Run regression tests
         run: uv run pytest -m regression -v --browser ${{ matrix.browser }} --base-url http://localhost:4200
 
@@ -122,6 +122,25 @@ jobs:
 
           echo "=== Laravel container logs ==="
           docker compose logs --tail=200 laravel-api
+
+      - name: Check Laravel permissions
+        if: failure()
+        working-directory: practice-software-testing
+        run: |
+          echo "=== PHP-FPM user ==="
+          docker compose exec -T laravel-api sh -c 'id www-data || true'
+
+          echo "=== storage ownership ==="
+          docker compose exec -T laravel-api sh -c \
+            'ls -ldn storage storage/logs storage/framework storage/framework/cache storage/framework/sessions storage/framework/views'
+
+          echo "=== write test as www-data ==="
+          docker compose exec -T laravel-api sh -c \
+            'su -s /bin/sh www-data -c "touch storage/logs/ci-write-test.log" || true'
+
+          echo "=== storage/logs after write test ==="
+          docker compose exec -T laravel-api sh -c \
+            'ls -lah storage/logs'
 
       - name: Show test application logs
         if: failure()
