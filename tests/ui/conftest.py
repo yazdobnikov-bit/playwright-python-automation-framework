@@ -10,7 +10,12 @@ def pages(page: Page) -> Pages:
 
 
 @pytest.fixture
-def browser_context_args(browser_context_args):
+def browser_context_args(browser_context_args, request):
+    device = request.config.getoption("--device")
+
+    if device:
+        return browser_context_args
+
     return {
         **browser_context_args,
         "viewport": {
