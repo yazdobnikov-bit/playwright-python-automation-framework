@@ -66,8 +66,14 @@ jobs:
           for i in $(seq 1 $ATTEMPTS); do
             echo "Checking application readiness (attempt $i/$ATTEMPTS)..."
 
-            FRONTEND_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$FRONTEND_URL")
-            PRODUCTS_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$PRODUCTS_URL")
+            FRONTEND_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+              --connect-timeout 2 --max-time 5 "$FRONTEND_URL" || true)
+
+            PRODUCTS_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+              --connect-timeout 2 --max-time 5 "$PRODUCTS_URL" || true)
+
+            FRONTEND_STATUS=${FRONTEND_STATUS:-000}
+            PRODUCTS_STATUS=${PRODUCTS_STATUS:-000}
 
             echo "Frontend status: $FRONTEND_STATUS"
             echo "Products API status: $PRODUCTS_STATUS"
@@ -77,6 +83,7 @@ jobs:
               exit 0
             fi
 
+            echo "Application is not ready yet. Waiting ${TIMEOUT}s..."
             sleep "$TIMEOUT"
           done
 
