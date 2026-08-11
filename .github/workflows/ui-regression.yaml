@@ -60,20 +60,23 @@ jobs:
         run: |
           ATTEMPTS=20
           TIMEOUT=3
-          URL="http://localhost:4200"
+          FRONTEND_URL="http://localhost:4200"
+          PRODUCTS_URL="http://localhost:8091/products"
 
           for i in $(seq 1 $ATTEMPTS); do
-            echo "Checking service (attempt $i/$ATTEMPTS)..."
+            echo "Checking application readiness (attempt $i/$ATTEMPTS)..."
 
-            if curl --fail --silent --show-error "$URL" > /dev/null; then
-              echo "Service is ready."
+            if curl --fail --silent "$FRONTEND_URL" > /dev/null \
+              && curl --fail --silent "$PRODUCTS_URL" > /dev/null; then
+              echo "Application is ready."
               exit 0
             fi
 
+            echo "Application is not ready yet. Waiting ${TIMEOUT}s..."
             sleep "$TIMEOUT"
           done
 
-          echo "Error: Service failed to start."
+          echo "Error: Application failed to become ready."
           exit 1
           
       - name: Run regression tests
