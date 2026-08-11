@@ -10,6 +10,7 @@ class ProductGrid:
         self.result_count = self.page.locator('[data-test="search-result-count"]')
         self.product_names = self.products.locator('[data-test="product-name"]')
         self.filter_completed = self.page.locator('[data-test="filter_completed"]')
+        self.search_completed = self.page.locator('[data-test="search_completed"]')
 
     def get_first_product(self) -> ProductCard:
         return ProductCard(self.products.first)

@@ -32,6 +32,7 @@ def test_search_products(pages: Pages):
 
     pages.home.filters.search.search(query)
 
+    pages.home.products.search_completed.wait_for(state="attached")
     expect(pages.home.products.result_count).to_contain_text(query)
 
     product_names = pages.home.products.get_product_names()
