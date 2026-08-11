@@ -52,6 +52,12 @@ jobs:
         working-directory: practice-software-testing
         run: docker compose wait composer
 
+      - name: Fix Laravel permissions
+        working-directory: practice-software-testing
+        run: |
+          docker compose exec -T --user root laravel-api sh -c \
+            'chown -R www-data:www-data storage bootstrap/cache && chmod -R ug+rwX storage bootstrap/cache'
+
       - name: Initialize test data
         working-directory: practice-software-testing
         run: bash init-data.sh
@@ -134,11 +140,7 @@ jobs:
           docker compose exec -T laravel-api sh -c \
             'ls -ldn storage storage/logs storage/framework storage/framework/cache storage/framework/sessions storage/framework/views'
 
-          echo "=== write test as www-data ==="
-          docker compose exec -T laravel-api sh -c \
-            'su -s /bin/sh www-data -c "touch storage/logs/ci-write-test.log" || true'
-
-          echo "=== storage/logs after write test ==="
+          echo "=== storage/logs ==="
           docker compose exec -T laravel-api sh -c \
             'ls -lah storage/logs'
 
