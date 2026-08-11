@@ -49,6 +49,10 @@ jobs:
         working-directory: practice-software-testing
         run: docker compose up -d
 
+      - name: Wait for Composer
+        working-directory: practice-software-testing
+        run: docker compose wait composer
+
       - name: Initialize test data
         working-directory: practice-software-testing
         run: bash init-data.sh
