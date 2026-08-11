@@ -1,10 +1,13 @@
 import re
 
+import pytest
 from playwright.sync_api import expect
 
 from automation_framework.ui.pages_container import Pages
 
 
+@pytest.mark.smoke
+@pytest.mark.regression
 def test_home_page(pages: Pages, base_url: str):
     pages.home.open()
     expected_url = base_url.rstrip("/") + "/"
@@ -12,6 +15,7 @@ def test_home_page(pages: Pages, base_url: str):
     expect(pages.home.page).to_have_url(expected_url)
 
 
+@pytest.mark.regression
 def test_home_page_has_products(pages: Pages):
     pages.home.open()
 
@@ -26,6 +30,7 @@ def test_home_page_has_products(pages: Pages):
     expect(bolt_product.compare_btn).to_be_visible()
 
 
+@pytest.mark.regression
 def test_search_products(pages: Pages):
     pages.home.open()
     query = "Hammer"
@@ -42,6 +47,7 @@ def test_search_products(pages: Pages):
         expect(product_names.nth(index)).to_have_text(re.compile(query, re.IGNORECASE))
 
 
+@pytest.mark.regression
 def test_filter_products(pages: Pages):
     pages.home.open()
     category = "Hammer"

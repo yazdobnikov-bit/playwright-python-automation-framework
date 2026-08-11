@@ -1,8 +1,11 @@
+import pytest
 from playwright.sync_api import expect
 
 from automation_framework.ui.pages_container import Pages
 
 
+@pytest.mark.smoke
+@pytest.mark.regression
 def test_sign_in_with_empty_credentials(pages: Pages):
     pages.sign_in.open()
     pages.sign_in.click_sign_in()
@@ -12,6 +15,7 @@ def test_sign_in_with_empty_credentials(pages: Pages):
     expect(pages.sign_in.password_error).to_have_text("Password is required")
 
 
+@pytest.mark.regression
 def test_sign_in_with_invalid_credentials(pages: Pages):
     pages.sign_in.open()
     pages.sign_in.sign_in("nonexistent@example.com", "WrongPassword123!")

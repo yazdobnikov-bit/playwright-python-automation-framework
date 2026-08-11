@@ -23,3 +23,7 @@ module-root = "src"
 [tool.pytest.ini_options]
 base_url = "https://practicesoftwaretesting.com"
 addopts = "--tracing=retain-on-failure --video=retain-on-failure --screenshot=only-on-failure"
+markers = [
+    "smoke: marks critical path tests for quick validation",
+    "regression: marks tests for full regression coverage"
+]
