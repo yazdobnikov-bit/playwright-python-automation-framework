@@ -101,6 +101,20 @@ jobs:
           path: test-results/
           if-no-files-found: ignore
 
+      - name: Show backend diagnostics
+        if: failure()
+        working-directory: practice-software-testing
+        run: |
+          echo "=== /products response ==="
+          curl -i http://localhost:8091/products || true
+
+          echo "=== Laravel container logs ==="
+          docker compose logs --tail=200 laravel-api
+
+          echo "=== Laravel application log ==="
+          docker compose exec -T laravel-api sh -c \
+            'tail -n 200 storage/logs/laravel.log 2>/dev/null || true'
+
       - name: Show test application logs
         if: failure()
         working-directory: practice-software-testing
