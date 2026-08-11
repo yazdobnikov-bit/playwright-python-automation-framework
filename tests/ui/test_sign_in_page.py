@@ -12,9 +12,7 @@ def test_sign_in_with_empty_credentials(pages: Pages):
     expect(pages.sign_in.email_error).to_be_visible()
     expect(pages.sign_in.password_error).to_be_visible()
     expect(pages.sign_in.email_error).to_have_text("Email is required")
-    expect(pages.sign_in.password_error).to_have_text(
-        "Password is required - test should fail here"
-    )
+    expect(pages.sign_in.password_error).to_have_text("Password is required")
 
 
 @pytest.mark.regression
