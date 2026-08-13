@@ -1,0 +1,92 @@
+name: API Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Checkout test application
+        uses: actions/checkout@v4
+        with:
+          repository: testsmith-io/practice-software-testing
+          path: practice-software-testing
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Verify Python version
+        run: python --version
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Verify uv version
+        run: uv --version
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Run Ruff lint
+        run: uv run ruff check
+
+      - name: Check Ruff formatting
+        run: uv run ruff format --check
+
+      - name: Start test application
+        working-directory: practice-software-testing
+        run: docker compose up -d
+
+      - name: Wait for Composer
+        working-directory: practice-software-testing
+        run: docker compose wait composer
+
+      - name: Fix Laravel permissions
+        working-directory: practice-software-testing
+        run: |
+          docker compose exec -T --user root laravel-api sh -c \
+            'chown -R www-data:www-data storage bootstrap/cache && chmod -R ug+rwX storage bootstrap/cache'
+
+      - name: Initialize test data
+        working-directory: practice-software-testing
+        run: bash init-data.sh
+
+      - name: Wait for API
+        run: |
+          ATTEMPTS=20
+          TIMEOUT=3
+          API_URL="http://localhost:8091/products"
+
+          for i in $(seq 1 $ATTEMPTS); do
+            echo "Checking API readiness (attempt $i/$ATTEMPTS)..."
+
+            STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+              --connect-timeout 2 --max-time 5 "$API_URL" || true)
+
+            STATUS=${STATUS:-000}
+
+            echo "API status: $STATUS"
+
+            if [ "$STATUS" = "200" ]; then
+              echo "API is ready."
+              exit 0
+            fi
+
+            sleep "$TIMEOUT"
+          done
+
+          echo "Error: API failed to become ready."
+          exit 1
+
+      - name: Run API tests
+        run: uv run pytest tests/api -v
