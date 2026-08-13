@@ -7,6 +7,7 @@ dependencies = []
 [dependency-groups]
 dev = [
     "playwright>=1.62.0",
+    "pydantic>=2.13.4",
     "pytest>=9.1.1",
     "pytest-playwright>=0.8.0",
     "ruff>=0.16.2",
@@ -27,3 +28,6 @@ markers = [
     "smoke: marks critical path tests for quick validation",
     "regression: marks tests for full regression coverage"
 ]
+
+[tool.automation_framework]
+api_base_url = "http://localhost:8091"
