@@ -25,6 +25,15 @@ jobs:
           repository: testsmith-io/practice-software-testing
           path: practice-software-testing
 
+      - name: Show application version
+        working-directory: practice-software-testing
+        run: |
+          echo "=== Application commit SHA ==="
+          git rev-parse HEAD
+
+          echo "=== Application commit details ==="
+          git log -1 --format="%h %ad %s" --date=iso
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -61,7 +70,7 @@ jobs:
 
       - name: Wait for application readiness
         run: |
-          # Angular may require several minutes for its initial build.
+          # Angular may need several minutes for its initial build.
           ATTEMPTS=100
 
           for attempt in $(seq 1 "$ATTEMPTS"); do
