@@ -124,4 +124,15 @@ jobs:
       - name: Show final Docker logs
         if: failure()
         working-directory: practice-software-testing
-        run: docker compose logs --tail=200
+        run: |
+          echo "=== Final container status ==="
+          docker compose ps -a
+
+          echo "=== Final Angular logs ==="
+          docker compose logs --tail=200 angular-ui
+
+          echo "=== Angular processes ==="
+          docker compose exec -T angular-ui ps aux || true
+
+          echo "=== Final frontend check ==="
+          curl -v --max-time 10 http://127.0.0.1:4200/ || true
