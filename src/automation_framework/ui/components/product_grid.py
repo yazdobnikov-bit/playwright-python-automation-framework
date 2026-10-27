@@ -6,7 +6,7 @@ from automation_framework.ui.components.product_card import ProductCard
 class ProductGrid:
     def __init__(self, page: Page):
         self.page = page
-        self.products = page.locator('[data-test^="product-"]')
+        self.products = page.locator('a[data-test^="product-"]')
         self.result_count = self.page.locator('[data-test="search-result-count"]')
         self.product_names = self.products.locator('[data-test="product-name"]')
         self.filter_completed = self.page.locator('[data-test="filter_completed"]')
